@@ -31,14 +31,16 @@ def process_tag_update(update):
 def server_static(filepath):
     return static_file(filepath, root='./static')
 
+
 @route('/')
 def home():
     try:
         url = unauthenticated_api.get_authorize_url(
             scope=["public_content", "comments", "likes", "follower_list", "basic", "relationships"])
-        return template('index', url=url)
+        return template('index.tpl', url=url)
     except Exception as e:
         print(e)
+
 
 @route('/upload')
 def on_upload():
@@ -55,6 +57,7 @@ def on_callback():
         if not access_token:
             return 'Could not get access token'
         request.session['access_token'] = access_token
+        api_manager.start()
     except Exception as e:
         print(e)
     return template('menu')
@@ -66,29 +69,29 @@ def on_tag_search():
     thread = MyThread("urbanshot__", "kluza1", user_id, tag_list, 0)
 
     # zakomentowane bo nie ma instancji bota.
-    """
-    ui_manager = UserInfo(get_user_id())
-    ui_manager.followed_by_count = int(get_followed_by_count())
 
-    time.sleep(30)
-
-    followed_by_count = int(get_followed_by_count())
-    print 'Followed by before: %d' % ui_manager.followed_by_count
-    print 'Followed by after: %d' % followed_by_count
-
-    if followed_by_count > ui_manager.followed_by_count:
-        difference = followed_by_count - ui_manager.followed_by_count
-        ui_manager.get_followed_by()
-        while difference > 0:
-            bot.follow(ui_manager.followed_by[difference - 1]['id'])
-            bot.unfollow(ui_manager.followed_by[difference - 1]['id'])
-            difference -= 1
-    """
-    return template('data',
-                posts=api_manager.get_media_count(),
-                following=api_manager.get_follows_count(),
-                followed=api_manager.get_followed_by_count()
-                    )
+    # ui_manager = UserInfo(get_user_id())
+    # ui_manager.followed_by_count = int(get_followed_by_count())
+    #
+    # time.sleep(30)
+    #
+    # followed_by_count = int(get_followed_by_count())
+    # print 'Followed by before: %d' % ui_manager.followed_by_count
+    # print 'Followed by after: %d' % followed_by_count
+    #
+    # if followed_by_count > ui_manager.followed_by_count:
+    #     difference = followed_by_count - ui_manager.followed_by_count
+    #     ui_manager.get_followed_by()
+    #     while difference > 0:
+    #         bot.follow(ui_manager.followed_by[difference - 1]['id'])
+    #         bot.unfollow(ui_manager.followed_by[difference - 1]['id'])
+    #         difference -= 1
+    #
+    # return template('data',
+    #             posts=api_manager.get_media_count(),
+    #             following=api_manager.get_follows_count(),
+    #             followed=api_manager.get_followed_by_count()
+    #                 )
 
 @route('/realtime_callback')
 @post('/realtime_callback')
@@ -109,6 +112,6 @@ def on_realtime_callback():
         except subscriptions.SubscriptionVerifyError:
             print("Signature mismatch")
 
+
+
 bottle.run(app=app, host='localhost', port=8515, reloader=True)
-pic_manager.start()
-api_manager.start()
