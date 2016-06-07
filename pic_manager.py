@@ -4,6 +4,7 @@ import ssl
 from PIL import Image
 from database.database_manager import DatabaseManager
 
+
 class PicManager:
     def __init__(self):
         self.data_manager = DatabaseManager()

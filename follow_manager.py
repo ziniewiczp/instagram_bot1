@@ -194,6 +194,7 @@ class FollowManager:
             print ("Request returns " + str(response.status_code) + " while getting likers!")
         return likers
 
+    # zwraca username uzytkownika o podanym id
     def get_user_name(self, usernameId):
         endpoint = 'users/' + str(usernameId) + '/info/'
 
@@ -216,18 +217,3 @@ class FollowManager:
         else:
             print ("Request returns " + str(response.status_code) + " while getting user name!")
         return user
-
-    def like(self, mediaId):
-        data = json.dumps({
-            '_uuid': self.uuid,
-            '_uid': self.username_id,
-            '_csrftoken': self.token,
-            'media_id': mediaId
-        })
-
-
-        bool = self.SendRequest('media/' + str(mediaId) + '/like/', self.generateSignature(data))
-        if bool:
-            print("Liked media with id: "+str(mediaId))
-        else:
-            print("Don't like media with id: " + str(mediaId))

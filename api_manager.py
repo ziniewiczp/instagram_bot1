@@ -11,7 +11,6 @@ class ApiManager:
         self.api_recent_media = "https://api.instagram.com/v1/users/self/media/recent/?access_token=%s"
         self.api_user_media = "https://www.instagram.com/%s/media/"
 
-
     # wywolanie po rozpoczeciu aplikacji
     def start(self):
         self.access_token = request.session['access_token']
@@ -27,14 +26,6 @@ class ApiManager:
         for i in jsonik["data"]:
             media_list.append(i["id"])
         return media_list
-
-    # util
-    #def how_many(self, media_count):
-    #    tmp = int(media_count) - 20
-    #    how_many = tmp / 20
-    #    if ((tmp % 20) > 0):
-    #        how_many = how_many + 1
-    #    return how_many
 
     # zwraca liste userow ktorzy polubili zadane nasze media
     def get_list_of_users_who_liked_media(self, media):
@@ -131,10 +122,15 @@ class ApiManager:
             response = urllib2.urlopen(url).read()
             json_response = json.loads(response)
             print(json_response)
+            # tutaj dodalem obcinanie tego id ale dalej nie dziala, jak bedzie zle to mozna zmienic
             for i in json_response["items"]:
-                user_media.append(i["id"])
+                media_id = ''
+                for item in i["id"]:
+                    if item == '_':
+                        break
+                    media_id += item
+                user_media.append(media_id)
         except:
             print "Exception while getting %s's media!" % username
 
         return user_media
-
