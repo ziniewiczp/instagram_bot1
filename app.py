@@ -31,16 +31,39 @@ def process_tag_update(update):
 def server_static(filepath):
     return static_file(filepath, root='./static')
 
+# PROSZĘ UWAZAC BO TO WSZYSTKO JEST TAK ZAJEBISCIE KRUCHE ZE SIE W DUPIE NIE MIESCI
 
 @route('/')
 def home():
     try:
+        # TEGO URL NIE WOLNO KASOWAC BO SIE WSZYSTKO WYJEBIE
         url = unauthenticated_api.get_authorize_url(
             scope=["public_content", "comments", "likes", "follower_list", "basic", "relationships"])
-        return template('index.tpl', url=url)
+        return template('index.tpl',url=url)
     except Exception as e:
         print(e)
 
+@route('/', method="POST")
+def do_home():
+    # dane usera
+    username = request.forms.get('username')
+    password = request.forms.get('password')
+    print username, password
+    return template('gotospecs.tpl')
+
+@route('/specs')
+def go_specs():
+    return template('specs.tpl')
+
+@route('/specs', method="POST")
+def get_specs():
+    # wybrane kategoria i czas
+    category = request.forms.get('category')
+    timestamp = request.forms.get('timestamp')
+    print category, timestamp
+    url = unauthenticated_api.get_authorize_url(
+        scope=["public_content", "comments", "likes", "follower_list", "basic", "relationships"])
+    return template('start.tpl', url=url)
 
 @route('/upload')
 def on_upload():

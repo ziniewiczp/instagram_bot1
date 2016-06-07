@@ -20,38 +20,26 @@
         <div class="col m6">
             <h2 class="center-align">Login</h2>
             <div class="row">
-                <form class="col s12 user-data">
+                <form class="col s12 user-data" action="/" method="post">
                     <div class="row">
                         <div class="input-field col s12">
-                            <input id="login" type="text" class="validate" required >
+                            <input id="login" type="text" name="username" class="validate" required >
                             <label for="login">Login</label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="input-field col s12">
-                            <input id="pass" type="password" class="validate" required >
+                            <input id="pass" type="password" name="password" class="validate" required >
                             <label for="pass">Password</label>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col s12">
-                          <div class="input-field col s12">
-                            <select id="category">
-                              <option value="" disabled selected required >Choose your category</option>
-                              <option value="1">Option 1</option>
-                              <option value="2">Option 2</option>
-                              <option value="3">Option 3</option>
-                            </select>
-                            <label>Categories</label>
-                          </div>
-                        </div>
-                    </div>
+
 
                     <div class="row">
                         <div class="col m12">
                             <p class="right-align">
-                              <a class="waves-effect waves-light btn-large start-btn start" href="{{url}}">Let's start!</a>
-                                <button class="btn btn-large waves-effect waves-light" id="loginButton" type="button" name="action">Login</button>
+                              <a id="auth" href="{{url}}"></a>
+                                <button class="btn btn-large waves-effect waves-light" id="loginButton" type="submit" name="action">Login</button>
                             </p>
                         </div>
                     </div>
@@ -67,7 +55,7 @@
 </div> -->
 
 <script src="../static/jquery-1.12.3.min.js"></script>
-<script src="../static/materialize.min.js"></script>
+<script src="../static/materialize.js"></script>
 <script src="../static/main.js"></script>
 </body>
 </html>
