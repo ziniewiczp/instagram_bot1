@@ -16,7 +16,10 @@ class ApiManager:
     def start(self):
         self.access_token = request.session['access_token']
         self.api = client.InstagramAPI(access_token=self.access_token, client_secret=CONFIG['client_secret'])
-        self.media_count = self.get_media_count()
+        self.id = self.get_user_id()
+        self.user_name = self.get_user_name()
+        # nie moze byc tej zmiennej, trzeba media count zawsze pobierac getem zeby aktualna liczbe miec
+        #self.media_count = self.get_media_count()
 
 
     # dodaje do listy mediow media z zadanego jsona
@@ -25,34 +28,20 @@ class ApiManager:
             media_list.append(i["id"])
         return media_list
 
-    # zwraca nasza liste mediow (id)
-    def get_media_id_list(self):
-        url = self.api_recent_media % self.access_token
-        response = urllib2.urlopen(url).read()
-        json_response = json.loads(response)
-        media = []
-        media = self.fill_media_list(json_response, media)
-        if self.media_count > 20:
-            for i in range(self.how_many()):
-                self.api_recent_media_tmp = json_response["pagination"]["next_url"]
-                response = urllib2.urlopen(self.api_recent_media_tmp).read()
-                json_response = json.loads(response)
-                media = self.fill_media_list(json_response, media)
-        return media
-
     # util
-    def how_many(self):
-        tmp = int(self.media_count) - 20
-        how_many = tmp / 20
-        if ((tmp % 20) > 0):
-            how_many = how_many + 1
-        return how_many
+    #def how_many(self, media_count):
+    #    tmp = int(media_count) - 20
+    #    how_many = tmp / 20
+    #    if ((tmp % 20) > 0):
+    #        how_many = how_many + 1
+    #    return how_many
 
-    # zwraca liste userow ktorzy polubili nasze media
+    # zwraca liste userow ktorzy polubili zadane nasze media
     def get_list_of_users_who_liked_media(self, media):
         users_lists = []
         for i in range(media.__len__()):
             url = self.api_media_likes % (media[i], self.access_token)
+            print(url)
             response = urllib2.urlopen(url).read()
             json_response = json.loads(response)
             if json_response["data"]:
@@ -61,6 +50,16 @@ class ApiManager:
                     if j["id"] not in users_lists:
                         users_lists.append(j["id"])
         return users_lists
+
+    # zwraca nasz username
+    def get_user_name(self):
+        if not self.access_token:
+            return 'Missing Access Token'
+        try:
+            self.user_name = self.api.user().__getattribute__('username')
+            return self.user_name
+        except Exception as e:
+            print(e)
 
     # zwraca nasze id
     def get_user_id(self):
@@ -73,41 +72,16 @@ class ApiManager:
             print(e)
 
     # zwraca nasza liczbe mediow
-    def get_media_count(self):
-        if not self.access_token:
-            return 'Missing Access Token'
-        try:
-            user_count = self.api.user().__getattribute__('counts')
-            splitted_response = str(user_count).split(", 'followed_by': ", 1)
-            splitted_response2 = splitted_response[0].split("{'media': ", 1)
-        except Exception as e:
-            print(e)
-        return splitted_response2[1]
+    def get_self_media_count(self):
+        return self.get_user_media_count(self.id)
 
-    # zwraca liczbe followersow
-    def get_followed_by_count(self):
-        if not self.access_token:
-            return 'Missing Access Token'
-        try:
-            user_count = self.api.user().__getattribute__('counts')
-            splitted_response = str(user_count).split("'followed_by': ", 1)
-            splitted_response2 = splitted_response[1].split(", 'follows': ", 1)
-        except Exception as e:
-            print(e)
-        return splitted_response2[0]
+    # zwraca nasza liczbe followersow
+    def get_self_followed_by_count(self):
+        return self.get_user_followed_by_count(self.id)
 
     # zwraca liczbe ktorych followujemy
-    def get_follows_count(self):
-        if not self.access_token:
-            return 'Missing Access Token'
-        try:
-            user_count = self.api.user().__getattribute__('counts')
-            splitted_response = str(user_count).split("'followed_by': ", 1)
-            splitted_response2 = splitted_response[1].split(", 'follows': ", 1)
-            splitted_response3 = splitted_response2[1].split("}", 1)
-        except Exception as e:
-            print(e)
-        return splitted_response3[0]
+    def get_self_follows_count(self):
+        return self.get_user_follows_count(self.id)
 
     # zwraca liczbe mediow danego usera
     def get_user_media_count(self, user_id):
@@ -146,6 +120,9 @@ class ApiManager:
             print(e)
         return splitted_response3[0]
 
+    def get_user_self_media(self):
+        return self.get_user_media(self.get_user_name())
+
     # zwraca liste 20 ostatnich mediow uzytkownika o podanym username.
     def get_user_media(self, username):
         user_media = []
@@ -153,6 +130,7 @@ class ApiManager:
             url = self.api_user_media % username
             response = urllib2.urlopen(url).read()
             json_response = json.loads(response)
+            print(json_response)
             for i in json_response["items"]:
                 user_media.append(i["id"])
         except:

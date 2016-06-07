@@ -7,11 +7,16 @@ import time
 
 class Manager:
     def __init__(self, login, password, tag_list):
-        self.insta_manager = InstaManager(login, password)
-        self.api_manager = ApiManager()
-        self.follow_manager = FollowManager(login, password)
-        self.pic_manager = PicManager()
+        self.login = login
+        self.password = password
+        self.tag_list = tag_list
+        self.users_to_like = []
 
+    def start(self):
+        self.insta_manager = InstaManager(self.login, self.password, 0, self.tag_list)
+        self.api_manager = ApiManager()
+        self.follow_manager = FollowManager(self.login, self.password)
+        self.pic_manager = PicManager()
         self.api_manager.start()
 
         self.user_id = self.api_manager.get_user_id()
@@ -38,3 +43,30 @@ class Manager:
 
         for user in followers:
             self.insta_manager.follow(user)
+        self.insta_manager.user_id = self.api_manager.id
+
+    def get_users_to_like(self):
+        users = []
+        media = self.api_manager.get_user_self_media()
+        for i in media:
+            likers = self.follow_manager.get_media_likers(i)
+            for j in likers:
+                users.append(j)
+        return users
+
+    def like4like(self,users):
+        if users.__len__() < 300:
+            for user in users:
+                user_name = self.follow_manager.get_user_name(user)
+                media_to_like = self.api_manager.get_user_media(user_name)
+                print user_name
+                for media in media_to_like:
+                    self.insta_manager.like(media)
+        else:
+            for user in range(300):
+                user_name = self.follow_manager.get_user_name(users[user])
+                media_to_like = self.api_manager.get_user_media(user_name)
+                for media in media_to_like:
+                    self.insta_manager.like(media)
+
+

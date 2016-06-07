@@ -1,10 +1,10 @@
 import bottle
 import beaker.middleware
-from pic_manager import PicManager
-from api_manager import ApiManager
+from manager import Manager
 from bottle import route, post, request, hook, template, static_file
 from instagram import client, subscriptions
 from config import CONFIG, unauthenticated_api
+from follow_manager import FollowManager
 from my_thread import MyThread
 
 
@@ -17,8 +17,7 @@ session_opts = {
 }
 app = beaker.middleware.SessionMiddleware(bottle.app(), session_opts)
 
-pic_manager = PicManager()
-api_manager = ApiManager()
+manager = Manager('urbanshot__', 'kluza1', ['blondes','brunettes', 'dupadebugging'])
 
 @hook('before_request')
 def setup_request():
@@ -67,7 +66,7 @@ def get_specs():
 
 @route('/upload')
 def on_upload():
-    tag_list = pic_manager.upload("buildings")
+    tag_list = manager.pic_manager.upload("buildings")
     return template('upload.tpl', tag_lists=tag_list)
 
 @route('/oauth_callback')
@@ -80,16 +79,17 @@ def on_callback():
         if not access_token:
             return 'Could not get access token'
         request.session['access_token'] = access_token
-        api_manager.start()
+        manager.start()
     except Exception as e:
         print(e)
     return template('menu')
 
 @route('/tag_search')
 def on_tag_search():
-    tag_list = pic_manager.get_tags('Urban', 10)
-    user_id = api_manager.get_user_id()
-    thread = MyThread("urbanshot__", "kluza1", user_id, tag_list, 0)
+    manager.like4like(['fifarafka'])
+    #user_id = api_manager.get_user_id()
+
+    #thread = MyThread("urbanshot__", "kluza1", user_id, tag_list, 0)
 
     # zakomentowane bo nie ma instancji bota.
 
