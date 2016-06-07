@@ -1,9 +1,6 @@
-from pic_manager import PicManager
 import requests
 import datetime
-import logging
 import json
-import time
 
 
 class InstaManager:
@@ -17,6 +14,7 @@ class InstaManager:
     url_unfollow = 'https://www.instagram.com/web/friendships/%s/unfollow/'
     url_login = 'https://www.instagram.com/accounts/login/ajax/'
     url_logout = 'https://www.instagram.com/accounts/logout/'
+    url_followers = 'https://www.instagram.com/web/friendships/followers/'
 
     user_agent = ("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 "
                       "(KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36")
@@ -30,40 +28,20 @@ class InstaManager:
     media_by_tag = 0
     login_status = False
 
-    def __init__(self, login, password,
-                 user_id,
-                 tag_list,
-                 log_mod = 0):
-
-        # log_mod 0 to console, 1 to file
-        self.log_mod = log_mod
-
+    def __init__(self, login, password):
         self.s = requests.Session()
+
         self.user_login = login.lower()
         self.user_password = password
 
-        self.tag_list = tag_list
-        self.user_id = user_id
-
         self.media_by_tag = []
 
-        self.like_counter = 0
-        self.unlike_counter = 0
-        self.follow_counter = 0
-        self.unfollow_counter = 0
-        self.comments_counter = 0
-
         now_time = datetime.datetime.now()
-        log_string = 'Starting at %s:' % \
-                     (now_time.strftime("%d.%m.%Y %H:%M"))
-        self.write_log(log_string)
+        print 'Starting at %s:' % (now_time.strftime("%d.%m.%Y %H:%M"))
         self.login()
 
-        self.pic_manager = PicManager()
-
     def login(self):
-            log_string = 'Try to login by %s...' % self.user_login
-            self.write_log(log_string)
+            print 'Trying to login by %s...' % self.user_login
             self.s.cookies.update({'sessionid': '', 'mid': '', 'ig_pr': '1',
                                    'ig_vw': '1920', 'csrftoken': '',
                                    's_network': '', 'ds_user_id': ''})
@@ -91,33 +69,26 @@ class InstaManager:
                 finder = r.text.find(self.user_login)
                 if finder != -1:
                     self.login_status = True
-                    log_string = 'Look like login by %s succeedded!' % self.user_login
-                    self.write_log(log_string)
+                    print 'Looks like login by %s succeedded!' % self.user_login
                 else:
                     self.login_status = False
-                    self.write_log('Login error! Check your login data!')
+                    print 'Login error! Check your login data!'
             else:
-                self.write_log('Login error! Connection error!')
+                print 'Login error! Connection error!'
 
     def logout(self):
-        log_string = 'Logout: likes - %i, follow - %i, unfollow - %i, comments - %i.' % \
-                     (self.like_counter, self.follow_counter,
-                      self.unfollow_counter, self.comments_counter)
-        self.write_log(log_string)
-
         try:
             logout_post = {'csrfmiddlewaretoken': self.csrftoken}
             logout = self.s.post(self.url_logout, data=logout_post)
-            self.write_log("Logged out!")
+            print "Logged out!"
             self.login_status = False
         except:
-            self.write_log("Logout error!")
+            print "Logout error!"
 
     # wyszukiwanie id mediow pasujacych do podanego taga
     def get_media_id_by_tag(self, tag):
         if self.login_status:
-            log_string = "Get media id by tag: %s" % tag
-            self.write_log(log_string)
+            print "Getting media id by tag: %s..." % tag
             if self.login_status == 1:
                 url_tag = '%s%s%s' % (self.url_tag, tag, '/')
                 try:
@@ -138,10 +109,10 @@ class InstaManager:
                     self.media_by_tag = list(all_data['entry_data']['TagPage'][0] \
                                                  ['tag']['media']['nodes'])
 
-                    self.write_log("Found %d posts." % len(self.media_by_tag))
+                    print "Found %d posts." % len(self.media_by_tag)
                 except:
                     self.media_by_tag = []
-                    self.write_log("Except while getting media by tag %s!" % tag)
+                    print "Exception while getting media by tag %s!" % tag
             else:
                 return 0
 
@@ -150,10 +121,9 @@ class InstaManager:
             url_likes = self.url_likes % media_id
             try:
                 like = self.s.post(url_likes)
-                self.like_counter += 1
-                self.write_log("Liked media with id: %s" % media_id)
+                print "Liked media with id: %s" % media_id
             except:
-                self.write_log("Except while liking media with id: %s" % media_id)
+                print "Exception while liking media with id: %s" % media_id
                 like = 0
             return like
 
@@ -162,10 +132,9 @@ class InstaManager:
             url_unlike = self.url_unlike % media_id
             try:
                 unlike = self.s.post(url_unlike)
-                self.unlike_counter += 1
-                self.write_log("Unliked media with id: %s" % media_id)
+                print "Unliked media with id: %s" % media_id
             except:
-                self.write_log("Except while unliking media with id: %s" % media_id)
+                print "Exception while unliking media with id: %s" % media_id
                 unlike = 0
             return unlike
 
@@ -175,12 +144,10 @@ class InstaManager:
             try:
                 follow = self.s.post(url_follow)
                 if follow.status_code == 200:
-                    self.follow_counter += 1
-                    log_string = "Followed user with id: %s." % user_id
-                    self.write_log(log_string)
+                    print "Followed user with id: %s." % user_id
                 return follow
             except:
-                self.write_log("Except while following user with id: %s." % user_id)
+                print "Exception while following user with id: %s." % user_id
         return False
 
     def unfollow(self, user_id):
@@ -189,12 +156,10 @@ class InstaManager:
             try:
                 unfollow = self.s.post(url_unfollow)
                 if unfollow.status_code == 200:
-                    self.unfollow_counter += 1
-                    log_string = "Unfollowed user with id: %s." % user_id
-                    self.write_log(log_string)
+                    print "Unfollowed user with id: %s." % user_id
                 return unfollow
             except:
-                self.write_log("Except while unfollowing user with id: %s." % user_id)
+                print "Exception while unfollowing user with id: %s." % user_id
         return False
 
     def comment(self, media_id, comment_text):
@@ -204,68 +169,10 @@ class InstaManager:
             try:
                 comment = self.s.post(url_comment, data=comment_post)
                 if comment.status_code == 200:
-                    self.comments_counter += 1
-                    log_string = 'Written: "%s" under post with id: %s.' % (comment_text, media_id)
-                    self.write_log(log_string)
+                    print 'Written: "%s" under post with id: %s.' % (comment_text, media_id)
                 return comment
             except:
-                self.write_log("Except while commenting media with id %s!" % media_id)
+                print "Except while commenting media with id %s!" % media_id
         else:
-            self.write_log("Login status error")
+            print "Login status error"
         return False
-
-    def auto_mod(self):
-        #ui_manager = UserInfo(self.user_id)
-
-        self.write_log("Posting photo with tags from given category...")
-        self.pic_manager.upload(self.tag_list)
-
-        # szuka tylko po dwoch pierwszych tagach z tag_list. Do zmiany pozniej.
-        for tag in self.tag_list[:2]:
-            self.write_log("Searching media with tag %s" % tag)
-            self.get_media_id_by_tag(tag)
-            for media in self.media_by_tag:
-                self.like(media['id'])
-                self.follow(media['owner']['id'])
-
-        self.write_log("Going to sleep for a minute...")
-        time.sleep(60)
-
-        # F4F - nie dziala w oddzielnym watku.
-        """
-        ui_manager.get_followed_by()
-
-        if ui_manager.followed_by.__len__() > self.followed_by_count:
-            self.write_log("I got new followers. Following back...")
-            difference = ui_manager.followed_by.__len__() - self.followed_by_count
-            while difference > 0:
-                self.follow(ui_manager.followed_by[difference - 1]['id'])
-                difference -= 1
-        """
-
-    def write_log(self, log_text):
-        if self.log_mod == 0:
-            try:
-                print(log_text)
-            except UnicodeEncodeError:
-                print("Your text has unicode problem!")
-        elif self.log_mod == 1:
-        # Create log_file if not exist.
-            if self.log_file == 0:
-                self.log_file = 1
-                now_time = datetime.datetime.now()
-                self.log_full_path = '%s%s_%s.log' % (self.log_file_path,
-                                                        self.user_login,
-                                                        now_time.strftime("%d.%m.%Y_%H:%M"))
-                formatter = logging.Formatter('%(asctime)s - %(name)s '
-                                                      '- %(message)s')
-                self.logger = logging.getLogger(self.user_login)
-                self.hdrl = logging.FileHandler(self.log_full_path, mode='w')
-                self.hdrl.setFormatter(formatter)
-                self.logger.setLevel(level=logging.INFO)
-                self.logger.addHandler(self.hdrl)
-                # Log to log file.
-                try:
-                    self.logger.info(log_text)
-                except UnicodeEncodeError:
-                    print("Your text has unicode problem!")
