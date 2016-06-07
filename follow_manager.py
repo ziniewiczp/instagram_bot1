@@ -166,3 +166,68 @@ class FollowManager:
             print ("Request returns " + str(response.status_code) + " while getting followers!")
 
         return following
+
+
+    # zwraca liste osob ktore zlajkowaly zadane media
+    def get_media_likers(self, mediaId):
+
+        endpoint = 'media/' + str(mediaId) + '/likers/?'
+
+        if not self.isLoggedIn:
+            print "Can't get list of followers, no user logged in."
+
+        self.s.headers.update({'Connection': 'close',
+                               'Accept': '*/*',
+                               'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                               'Cookie2': '$Version=1',
+                               'Accept-Language': 'en-US',
+                               'User-Agent': self.USER_AGENT})
+        response = self.s.get(self.API_URL + endpoint)
+
+        likers = []
+        if response.status_code == 200:
+            self.LastResponse = response
+            self.LastJson = json.loads(response.text)
+            for i in self.LastJson["users"]:
+                likers.append(str(i["pk"]))
+        else:
+            print ("Request returns " + str(response.status_code) + " while getting likers!")
+        return likers
+
+    def get_user_name(self, usernameId):
+        endpoint = 'users/' + str(usernameId) + '/info/'
+
+        if not self.isLoggedIn:
+            print "Can't get list of followers, no user logged in."
+
+        self.s.headers.update({'Connection': 'close',
+                               'Accept': '*/*',
+                               'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                               'Cookie2': '$Version=1',
+                               'Accept-Language': 'en-US',
+                               'User-Agent': self.USER_AGENT})
+        response = self.s.get(self.API_URL + endpoint)
+
+        if response.status_code == 200:
+            self.LastResponse = response
+            self.LastJson = json.loads(response.text)
+            user = self.LastJson["user"]["username"]
+
+        else:
+            print ("Request returns " + str(response.status_code) + " while getting user name!")
+        return user
+
+    def like(self, mediaId):
+        data = json.dumps({
+            '_uuid': self.uuid,
+            '_uid': self.username_id,
+            '_csrftoken': self.token,
+            'media_id': mediaId
+        })
+
+
+        bool = self.SendRequest('media/' + str(mediaId) + '/like/', self.generateSignature(data))
+        if bool:
+            print("Liked media with id: "+str(mediaId))
+        else:
+            print("Don't like media with id: " + str(mediaId))
