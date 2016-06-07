@@ -20,10 +20,6 @@ class InstaManager:
                       "(KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36")
     accept_language = 'pl;q=0.8,en-US;q=0.6,en;q=0.4'
 
-    # Log setting.
-    log_file_path = ''
-    log_file = 0
-
     # Other.
     media_by_tag = 0
     login_status = False
@@ -85,7 +81,7 @@ class InstaManager:
         except:
             print "Logout error!"
 
-    # wyszukiwanie id mediow pasujacych do podanego taga
+    # wyszukiwanie id mediow pasujacych do podanego taga, zapisuje wynik do self.media_by_tag
     def get_media_id_by_tag(self, tag):
         if self.login_status:
             print "Getting media id by tag: %s..." % tag
