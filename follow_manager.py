@@ -3,7 +3,6 @@ import random
 import json
 import hashlib
 import hmac
-from urlparse import urlparse
 from urllib import quote
 
 
@@ -26,17 +25,12 @@ class FollowManager:
     def setUser(self, username, password):
         self.username = username
         self.password = password
-
         self.uuid = self.generateUUID(True)
 
     def login(self, force=False):
         if not self.isLoggedIn or force:
             self.s = requests.Session()
-            # if you need proxy make something like this:
-            # self.s.proxies = {"https" : "http://proxyip:proxyport"}
-            if (
-            self.SendRequest('si/fetch_headers/?challenge_type=signup&guid=' + self.generateUUID(False), None, True)):
-
+            if self.SendRequest('si/fetch_headers/?challenge_type=signup&guid=' + self.generateUUID(False), None, True):
                 data = {'phone_id': self.generateUUID(True),
                         '_csrftoken': self.LastResponse.cookies['csrftoken'],
                         'username': self.username,
@@ -45,15 +39,15 @@ class FollowManager:
                         'password': self.password,
                         'login_attempt_count': '0'}
 
-                if (self.SendRequest('accounts/login/', self.generateSignature(json.dumps(data)), True)):
+                if self.SendRequest('accounts/login/', self.generateSignature(json.dumps(data)), True):
                     self.isLoggedIn = True
                     self.username_id = self.LastJson["logged_in_user"]["pk"]
                     self.rank_token = "%s_%s" % (self.username_id, self.uuid)
                     self.token = self.LastResponse.cookies["csrftoken"]
-
                     self.syncFeatures()
                     print ("Login succeeded!\n")
                     return True
+        return False
 
     def syncFeatures(self):
         data = json.dumps({
@@ -64,31 +58,6 @@ class FollowManager:
             'experiments': self.EXPERIMENTS
         })
         return self.SendRequest('qe/sync/', self.generateSignature(data))
-
-    def SendRequest(self, endpoint, post=None, login=False):
-        if not self.isLoggedIn and not login:
-            raise Exception("Not logged in!\n")
-            return
-
-        self.s.headers.update({'Connection': 'close',
-                               'Accept': '*/*',
-                               'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                               'Cookie2': '$Version=1',
-                               'Accept-Language': 'en-US',
-                               'User-Agent': self.USER_AGENT})
-
-        if (post != None):  # POST
-            response = self.s.post(self.API_URL + endpoint, data=post)  # , verify=False
-        else:  # GET
-            response = self.s.get(self.API_URL + endpoint)  # , verify=False
-
-        if response.status_code == 200:
-            self.LastResponse = response
-            self.LastJson = json.loads(response.text)
-            return True
-        else:
-            print ("Request return " + str(response.status_code) + " error!")
-            return False
 
     def generateSignature(self, data):
         return 'ig_sig_key_version=' + self.SIG_KEY_VERSION + '&signed_body=' + hmac.new(
@@ -113,7 +82,34 @@ class FollowManager:
         else:
             return uuid.replace('-', '')
 
-    # zwraca liste followersow.
+    def SendRequest(self, endpoint, post=None, login=False):
+        if not self.isLoggedIn and not login:
+            raise Exception("Not logged in!\n")
+            return
+
+        self.s.headers.update({'Connection': 'close',
+                               'Accept': '*/*',
+                               'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                               'Cookie2': '$Version=1',
+                               'Accept-Language': 'en-US',
+                               'User-Agent': self.USER_AGENT})
+
+        # POST
+        if (post != None):
+            response = self.s.post(self.API_URL + endpoint, data=post)
+        # GET
+        else:
+            response = self.s.get(self.API_URL + endpoint)
+
+        if response.status_code == 200:
+            self.LastResponse = response
+            self.LastJson = json.loads(response.text)
+            return True
+        else:
+            print ("Request return " + str(response.status_code) + " error!")
+            return False
+
+    # zwraca liste osob, ktore nas obserwuja.
     def get_followers(self, usernameId, maxid=''):
         endpoint = 'friendships/' + str(usernameId) + '/followers/?max_id=' + str(maxid) + '&ig_sig_key_version=' + \
                    self.SIG_KEY_VERSION + '&rank_token=' + self.rank_token
@@ -141,3 +137,32 @@ class FollowManager:
             print ("Request returns " + str(response.status_code) + " while getting followers!")
 
         return followers
+
+    # zwraca liste osob, ktore obserwujemy.
+    def get_following(self, usernameId, maxid=''):
+        endpoint = 'friendships/' + str(usernameId) + '/following/?max_id=' + str(maxid) + '&ig_sig_key_version=' + \
+                   self.SIG_KEY_VERSION + '&rank_token=' + self.rank_token
+
+        following = []
+
+        if not self.isLoggedIn:
+            print "Can't get list of followings, no user logged in."
+
+        self.s.headers.update({'Connection': 'close',
+                               'Accept': '*/*',
+                               'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                               'Cookie2': '$Version=1',
+                               'Accept-Language': 'en-US',
+                               'User-Agent': self.USER_AGENT})
+
+        response = self.s.get(self.API_URL + endpoint)
+
+        if response.status_code == 200:
+            self.LastResponse = response
+            self.LastJson = json.loads(response.text)
+            for i in self.LastJson["users"]:
+                following.append(str(i["pk"]))
+        else:
+            print ("Request returns " + str(response.status_code) + " while getting followers!")
+
+        return following
