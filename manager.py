@@ -34,9 +34,11 @@ class Manager:
 
     # followuje uzytkownikow, ktorzy followali nas w czasie dzialania funkcji
     # sleep_time - czas uspienia w sekundach.
-    def follow4follow(self):
+    def follow4follow(self, delay):
         print("Follow4follow started...")
         initial_count = int(self.api_manager.get_self_followed_by_count())
+
+        time.sleep(delay)
 
         later_count = int(self.api_manager.get_self_followed_by_count())
         if initial_count < later_count:
@@ -49,6 +51,7 @@ class Manager:
 
     # followuje wszystkich uzytkownikow z listy followersow
     def alternative_follow4follow(self):
+        print("Follow4follow started...")
         followers = self.follow_manager.get_followers(self.user_id)
 
         for user in followers:
@@ -93,9 +96,9 @@ class Manager:
                     self.insta_manager.like(media["id"])
                     self.insta_manager.follow(media["owner"]["id"])
 
-            self.follow4follow()
+            self.alternative_follow4follow()
             self.like4like(self.get_users_to_like())
             timestamp = self.timestamp + random.randint(0,300)
             print time.strftime("%c")
-            print ("Next getting fame after: "+timestamp+ "sec")
+            print ("Next getting fame after: "+str(timestamp)+ "sec")
             time.sleep(timestamp)
