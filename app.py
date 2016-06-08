@@ -48,6 +48,7 @@ def do_home():
     # dane usera
     manager.login = request.forms.get('username')
     manager.password = request.forms.get('password')
+    manager.start()
 
     return template('gotospecs.tpl')
 
@@ -69,7 +70,6 @@ def get_specs():
 
 @route('/upload')
 def on_upload():
-    manager.start()
     manager.get_fame()
     return template('upload.tpl')
     # return template('upload.tpl', tag_lists=[])
