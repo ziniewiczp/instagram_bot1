@@ -60,6 +60,7 @@ class PicManager:
             for tag in list:
                 tags = tags + '#' + tag + ' '
             client.upload('pic1.jpg', tags)
+        print("Photo uploaded")
         return list
 
     # przycina zdjecie do kwadratu
