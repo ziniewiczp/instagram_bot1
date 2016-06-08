@@ -6,7 +6,7 @@ from database.database_manager import DatabaseManager
 
 
 class PicManager:
-    def __init__(self, login, password, category):
+    def __init__(self, login, password):
         self.data_manager = DatabaseManager()
         self.pic_site = {
             "Swimming"  : "https://source.unsplash.com/category/people/?swimming",
@@ -30,7 +30,7 @@ class PicManager:
         self.pic_to_upload = "pic1.jpg"
         self.login = login
         self.password = password
-        self.category = category
+        self.category = "brak"
 
     # zwraca liste 20 defaultowych tagow LIKE COMENT FOLLOW SHOUTOUT
     def get_default_category_tags(self, list):
@@ -52,7 +52,7 @@ class PicManager:
     def upload(self):
         list = self.get_tags(self.category, 10)
         context = ssl._create_unverified_context()
-        category_url = self.pic_site[self.category]
+        category_url = self.pic_site[self.category] + self.pic_size
         urllib.urlretrieve(category_url, self.pic_to_upload, context=context)
         self.cut_image()
         with pynstagram.client(self.login, self.password) as client:

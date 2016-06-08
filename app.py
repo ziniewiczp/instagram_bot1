@@ -17,7 +17,7 @@ session_opts = {
 }
 app = beaker.middleware.SessionMiddleware(bottle.app(), session_opts)
 
-manager = Manager('urbanshot__', 'kluza1')
+manager = Manager()
 
 @hook('before_request')
 def setup_request():
@@ -46,9 +46,9 @@ def home():
 @route('/', method="POST")
 def do_home():
     # dane usera
-    username = request.forms.get('username')
-    password = request.forms.get('password')
-    print username, password
+    manager.login = request.forms.get('username')
+    manager.password = request.forms.get('password')
+    manager.start()
     return template('gotospecs.tpl')
 
 @route('/specs')
@@ -59,16 +59,19 @@ def go_specs():
 def get_specs():
     # wybrane kategoria i czas
     category = request.forms.get('category')
+    manager.set_category(category)
     timestamp = request.forms.get('timestamp')
-    print category, timestamp
+    print timestamp
+    manager.set_timestamp(timestamp)
     url = unauthenticated_api.get_authorize_url(
         scope=["public_content", "comments", "likes", "follower_list", "basic", "relationships"])
     return template('start.tpl', url=url)
 
 @route('/upload')
 def on_upload():
-    tag_list = manager.pic_manager.upload()
-    return template('upload.tpl', tag_lists=tag_list)
+    manager.get_fame()
+    #tag_list = manager.pic_manager.upload()
+    return template('upload.tpl', tag_lists=[])
 
 @route('/oauth_callback')
 def on_callback():
@@ -80,14 +83,13 @@ def on_callback():
         if not access_token:
             return 'Could not get access token'
         request.session['access_token'] = access_token
-        manager.start()
     except Exception as e:
         print(e)
     return template('menu')
 
-@route('/tag_search')
-def on_tag_search():
-    manager.like4like(['fifarafka'])
+#@route('/tag_search')
+#def on_tag_search():
+    #manager.like4like(['fifarafka'])
     #user_id = api_manager.get_user_id()
 
     #thread = MyThread("urbanshot__", "kluza1", user_id, tag_list, 0)

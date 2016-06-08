@@ -7,20 +7,30 @@ import random
 
 
 class Manager:
-    def __init__(self, login, password, category = 'Urban'):
+    def __init__(self, login='brak', password='brak', category='brak', timestamp=3600):
         self.login = login
         self.password = password
         self.users_to_like = []
         self.category = category
+        self.timestamp = timestamp
 
     def start(self):
         self.insta_manager = InstaManager(self.login, self.password)
         self.api_manager = ApiManager()
         self.follow_manager = FollowManager(self.login, self.password)
-        self.pic_manager = PicManager(self.login, self.password, 'Urban')
+        self.pic_manager = PicManager(self.login, self.password)
         self.api_manager.start()
 
         self.user_id = self.api_manager.get_user_id()
+
+    def set_category(self, category):
+        self.category = category
+        self.pic_manager.category = category
+
+    def set_timestamp(self, timestamp):
+        tmp = self.timestamp * int(timestamp)
+        self.timestamp = tmp
+
 
     # followuje uzytkownikow, ktorzy followali nas w czasie dzialania funkcji
     # sleep_time - czas uspienia w sekundach.
@@ -71,18 +81,22 @@ class Manager:
                 self.insta_manager.like(media)
 
     def get_fame(self):
+        while (True):
+            print time.strftime("%c")
+            self.pic_manager.upload()
+            fame_tag_list = self.pic_manager.get_default_category_tags([])
+            for tag in fame_tag_list[:3]:
+                self.insta_manager.get_media_id_by_tag(tag)
+                for media in self.insta_manager.media_by_tag:
+                    self.insta_manager.like(media["id"])
+                    self.insta_manager.follow(media["owner"]["id"])
 
-        self.pic_manager.upload()
-
-        fame_tag_list = self.pic_manager.get_default_category_tags([])
-        for tag in fame_tag_list[:3]:
-            self.insta_manager.get_media_id_by_tag(tag)
-            for media in self.insta_manager.media_by_tag:
-                self.insta_manager.like(media["id"])
-                self.insta_manager.follow(media["owner"]["id"])
-
-        self.follow4follow(120)
-        self.like4like(self.get_users_to_like())
+            self.follow4follow(120)
+            self.like4like(self.get_users_to_like())
+            timestamp = self.timestamp + random.randint(0,300)
+            print time.strftime("%c")
+            print ("Next getting fame after: "+timestamp+ "sec")
+            time.sleep(timestamp)
 
         # no i to moznaby zawrzec w jakims while'u powiedzmy ale to do dogadania
         # nie testowalem, ale powinno dzialac wszystko
