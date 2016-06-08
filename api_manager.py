@@ -121,7 +121,6 @@ class ApiManager:
             url = self.api_user_media % username
             response = urllib2.urlopen(url).read()
             json_response = json.loads(response)
-            print(json_response)
             # tutaj dodalem obcinanie tego id ale dalej nie dziala, jak bedzie zle to mozna zmienic
             for i in json_response["items"]:
                 media_id = ''
