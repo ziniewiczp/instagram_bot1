@@ -6,13 +6,31 @@ from database.database_manager import DatabaseManager
 
 
 class PicManager:
-    def __init__(self, login, password):
+    def __init__(self, login, password, category):
         self.data_manager = DatabaseManager()
-        self.pic_site = "https://source.unsplash.com/category/"
+        self.pic_site = {
+            "Swimming"  : "https://source.unsplash.com/category/people/?swimming",
+            "Running"   : "https://source.unsplash.com/category/people/?running",
+            "Cars"      : "https://source.unsplash.com/category/objects/?cars",
+            "Sports"    : "https://source.unsplash.com/category/people/?sports",
+            "Winter"    : "https://source.unsplash.com/category/nature/?winter",
+            "Summer"    : "https://source.unsplash.com/category/nature/?summer",
+            "Friends"   : "https://source.unsplash.com/category/people/?friends",
+            "Boys"      : "https://source.unsplash.com/category/people/?boys",
+            "Baby"      : "https://source.unsplash.com/category/people/?baby",
+            "People"    : "https://source.unsplash.com/category/people",
+            "Sea"       : "https://source.unsplash.com/category/nature/?sea",
+            "Flower"    : "https://source.unsplash.com/category/nature/?flower",
+            "Urban"     : "https://source.unsplash.com/category/buildings",
+            "Love"      : "https://source.unsplash.com/category/people/?love",
+            "Nature"    : "https://source.unsplash.com/category/nature",
+            "Food"      : "https://source.unsplash.com/category/food"
+        }
         self.pic_size = "/1400x1200"
         self.pic_to_upload = "pic1.jpg"
         self.login = login
         self.password = password
+        self.category = category
 
     # zwraca liste 20 defaultowych tagow LIKE COMENT FOLLOW SHOUTOUT
     def get_default_category_tags(self, list):
@@ -30,15 +48,12 @@ class PicManager:
         self.get_default_category_tags(list)
         return list
 
-    def urban_url(self):
-        return "buildings"
-
     # dodaje zdjecie
-    def upload(self, list):
-        list = self.get_tags("Urban", 10)
+    def upload(self):
+        list = self.get_tags(self.category, 10)
         context = ssl._create_unverified_context()
-        #category_url = get_category_url(category)
-        urllib.urlretrieve(self.pic_site + "buildings" + self.pic_size, self.pic_to_upload, context=context)
+        category_url = self.pic_site[self.category]
+        urllib.urlretrieve(category_url, self.pic_to_upload, context=context)
         self.cut_image()
         with pynstagram.client(self.login, self.password) as client:
             tags = ''

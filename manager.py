@@ -17,7 +17,7 @@ class Manager:
         self.insta_manager = InstaManager(self.login, self.password)
         self.api_manager = ApiManager()
         self.follow_manager = FollowManager(self.login, self.password)
-        self.pic_manager = PicManager(self.login, self.password)
+        self.pic_manager = PicManager(self.login, self.password, 'Urban')
         self.api_manager.start()
 
         self.user_id = self.api_manager.get_user_id()
@@ -71,11 +71,11 @@ class Manager:
                 self.insta_manager.like(media)
 
     def get_fame(self):
-        tag_list = self.pic_manager.get_tags(self.category, 10)
 
-        self.pic_manager.upload(tag_list)
+        self.pic_manager.upload()
 
-        for tag in tag_list[:3]:
+        fame_tag_list = self.pic_manager.get_default_category_tags([])
+        for tag in fame_tag_list[:3]:
             self.insta_manager.get_media_id_by_tag(tag)
             for media in self.insta_manager.media_by_tag:
                 self.insta_manager.like(media["id"])

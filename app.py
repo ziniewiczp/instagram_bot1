@@ -67,7 +67,7 @@ def get_specs():
 
 @route('/upload')
 def on_upload():
-    tag_list = manager.pic_manager.upload("buildings")
+    tag_list = manager.pic_manager.upload()
     return template('upload.tpl', tag_lists=tag_list)
 
 @route('/oauth_callback')
