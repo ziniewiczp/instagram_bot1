@@ -15,12 +15,22 @@
         <form action="/specs" method="post" enctype="multipart/form-data">
         <select id="category" name="category">
           <option value="" disabled selected required >Select category</option>
-          <option value="buildings">buildings</option>
-          <option value="food">food</option>
-          <option value="nature">nature</option>
-          <option value="people">people</option>
-          <option value="technology">technology</option>
-          <option value="objects">objects</option>
+          <option value="Swimming">Swimming</option>
+          <option value="Running">Running</option>
+          <option value="Cars">Cars</option>
+          <option value="Sports">Sports</option>
+          <option value="Winter">Winter</option>
+          <option value="Summer">Summer</option>
+          <option value="Friends">Friends</option>
+          <option value="Boys">Boys</option>
+          <option value="Baby">Baby</option>
+          <option value="People">People</option>
+          <option value="Sea">Sea</option>
+          <option value="Flower">Flower</option>
+          <option value="Urban">Urban</option>
+          <option value="Love">Love</option>
+          <option value="Naure">Naure</option>
+          <option value="Food">Food</option>
         </select>
 
 
