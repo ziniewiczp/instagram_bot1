@@ -13,7 +13,7 @@
     <div class="col s12">
       <div class="input-field col s12">
         <form action="/specs" method="post" enctype="multipart/form-data">
-        <select id="category" name="category">
+        <select id="category" name="category" required>
           <option value="" disabled selected required >Select category</option>
           <option value="Swimming">Swimming</option>
           <option value="Running">Running</option>
@@ -34,7 +34,7 @@
         </select>
 
 
-        <select id="time" name="timestamp">
+        <select id="time" name="timestamp" required>
           <option value="" disabled selected required >Select timestamp</option>
           <option value="1">1hour</option>
           <option value="2">2hours</option>
