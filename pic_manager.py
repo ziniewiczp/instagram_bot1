@@ -6,11 +6,13 @@ from database.database_manager import DatabaseManager
 
 
 class PicManager:
-    def __init__(self):
+    def __init__(self, login, password):
         self.data_manager = DatabaseManager()
         self.pic_site = "https://source.unsplash.com/category/"
         self.pic_size = "/1400x1200"
         self.pic_to_upload = "pic1.jpg"
+        self.login = login
+        self.password = password
 
     # zwraca liste 20 defaultowych tagow LIKE COMENT FOLLOW SHOUTOUT
     def get_default_category_tags(self, list):
@@ -38,7 +40,7 @@ class PicManager:
         #category_url = get_category_url(category)
         urllib.urlretrieve(self.pic_site + "buildings" + self.pic_size, self.pic_to_upload, context=context)
         self.cut_image()
-        with pynstagram.client('urbanshot__', 'kluza1') as client:
+        with pynstagram.client(self.login, self.password) as client:
             tags = ''
             for tag in list:
                 tags = tags + '#' + tag + ' '

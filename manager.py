@@ -16,7 +16,7 @@ class Manager:
         self.insta_manager = InstaManager(self.login, self.password)
         self.api_manager = ApiManager()
         self.follow_manager = FollowManager(self.login, self.password)
-        self.pic_manager = PicManager()
+        self.pic_manager = PicManager(self.login, self.password)
         self.api_manager.start()
 
         self.user_id = self.api_manager.get_user_id()
