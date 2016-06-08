@@ -29,7 +29,7 @@
           <option value="Flower">Flower</option>
           <option value="Urban">Urban</option>
           <option value="Love">Love</option>
-          <option value="Naure">Naure</option>
+          <option value="Nature">Nature</option>
           <option value="Food">Food</option>
         </select>
 

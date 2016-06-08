@@ -9,14 +9,9 @@
 <body>
 % include('navbar.tpl')
 <div class="container upload-container">
-    <h4>Yay! We successfully uploaded a photo to our Instagram!</h4>
-    <p>Check it <a href="http://instagram.com/urbanshot__">here!</a></p>
-    <p>We used most popular Instagram hashtags: </p>
-    <ul class="hashtag-list">
-      % for i in tag_lists:
-        <li>#{{i}},</li>
-      % end
-    </ul>
+    <h4>Yay! We successfully transfered your Instagram data!</h4>
+    <p>We will now do some magic, so your accont will get fame itself.</p>
+    <p>It doesn't need you anymore. Bye</p>
 </div>
 
 </body>

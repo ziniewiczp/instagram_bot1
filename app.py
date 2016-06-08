@@ -48,7 +48,7 @@ def do_home():
     # dane usera
     manager.login = request.forms.get('username')
     manager.password = request.forms.get('password')
-    manager.start()
+
     return template('gotospecs.tpl')
 
 @route('/specs')
@@ -69,9 +69,10 @@ def get_specs():
 
 @route('/upload')
 def on_upload():
+    manager.start()
     manager.get_fame()
-    #tag_list = manager.pic_manager.upload()
-    return template('upload.tpl', tag_lists=[])
+    return template('upload.tpl')
+    # return template('upload.tpl', tag_lists=[])
 
 @route('/oauth_callback')
 def on_callback():
