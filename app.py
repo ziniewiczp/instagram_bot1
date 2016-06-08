@@ -17,7 +17,7 @@ session_opts = {
 }
 app = beaker.middleware.SessionMiddleware(bottle.app(), session_opts)
 
-manager = Manager('urbanshot__', 'kluza1', ['blondes','brunettes', 'dupadebugging'])
+manager = Manager('urbanshot__', 'kluza1')
 
 @hook('before_request')
 def setup_request():
@@ -30,7 +30,8 @@ def process_tag_update(update):
 def server_static(filepath):
     return static_file(filepath, root='./static')
 
-# PROSZĘ UWAZAC BO TO WSZYSTKO JEST TAK ZAJEBISCIE KRUCHE ZE SIE W DUPIE NIE MIESCI
+# PROSZE UWAZAC BO TO WSZYSTKO JEST TAK ZAJEBISCIE KRUCHE ZE SIE W DUPIE NIE MIESCI
+# ADA PROSZE NIE PISAC POLSKICH ZNAKOW BO WYCHODZI Z DUPY
 
 @route('/')
 def home():

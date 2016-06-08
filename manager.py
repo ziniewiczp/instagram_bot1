@@ -3,6 +3,7 @@ from pic_manager import PicManager
 from api_manager import ApiManager
 from follow_manager import FollowManager
 import time
+import random
 
 
 class Manager:
@@ -53,22 +54,21 @@ class Manager:
             likers = self.follow_manager.get_media_likers(i)
             for j in likers:
                 users.append(j)
-        return users
+        return self.choose_users(users)
+
+    #wybiera 10 uzytkownikow do zalajkowania
+    def choose_users(self, users):
+        if users.__len__() < 10:
+            return users
+        else:
+            return random.sample(users, 10)
 
     def like4like(self, users):
-        if users.__len__() < 300:
-            for user in users:
-                user_name = self.follow_manager.get_user_name(user)
-                media_to_like = self.api_manager.get_user_media(user_name)
-                print user_name
-                for media in media_to_like:
-                    self.insta_manager.like(media)
-        else:
-            for user in range(300):
-                user_name = self.follow_manager.get_user_name(users[user])
-                media_to_like = self.api_manager.get_user_media(user_name)
-                for media in media_to_like:
-                    self.insta_manager.like(media)
+        for user in users:
+            user_name = self.follow_manager.get_user_name(user)
+            media_to_like = self.api_manager.get_user_media(user_name)
+            for media in media_to_like:
+                self.insta_manager.like(media)
 
     def get_fame(self):
         tag_list = self.pic_manager.get_tags(self.category, 10)
