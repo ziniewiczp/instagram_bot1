@@ -34,10 +34,9 @@ class Manager:
 
     # followuje uzytkownikow, ktorzy followali nas w czasie dzialania funkcji
     # sleep_time - czas uspienia w sekundach.
-    def follow4follow(self, sleep_time):
+    def follow4follow(self):
+        print("Follow4follow started...")
         initial_count = int(self.api_manager.get_self_followed_by_count())
-
-        time.sleep(sleep_time)
 
         later_count = int(self.api_manager.get_self_followed_by_count())
         if initial_count < later_count:
@@ -74,6 +73,7 @@ class Manager:
             return random.sample(users, 10)
 
     def like4like(self, users):
+        print ("Like4like started...")
         for user in users:
             user_name = self.follow_manager.get_user_name(user)
             media_to_like = self.api_manager.get_user_media(user_name)
@@ -85,18 +85,17 @@ class Manager:
             print time.strftime("%c")
             self.pic_manager.upload()
             fame_tag_list = self.pic_manager.get_default_category_tags([])
+
+            print("Liking and following by fame tag list started...")
             for tag in fame_tag_list[:3]:
                 self.insta_manager.get_media_id_by_tag(tag)
                 for media in self.insta_manager.media_by_tag:
                     self.insta_manager.like(media["id"])
                     self.insta_manager.follow(media["owner"]["id"])
 
-            self.follow4follow(120)
+            self.follow4follow()
             self.like4like(self.get_users_to_like())
             timestamp = self.timestamp + random.randint(0,300)
             print time.strftime("%c")
             print ("Next getting fame after: "+timestamp+ "sec")
             time.sleep(timestamp)
-
-        # no i to moznaby zawrzec w jakims while'u powiedzmy ale to do dogadania
-        # nie testowalem, ale powinno dzialac wszystko
