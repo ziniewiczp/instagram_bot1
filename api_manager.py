@@ -17,9 +17,6 @@ class ApiManager:
         self.api = client.InstagramAPI(access_token=self.access_token, client_secret=CONFIG['client_secret'])
         self.id = self.get_user_id()
         self.user_name = self.get_user_name()
-        # nie moze byc tej zmiennej, trzeba media count zawsze pobierac getem zeby aktualna liczbe miec
-        #self.media_count = self.get_media_count()
-
 
     # dodaje do listy mediow media z zadanego jsona
     def fill_media_list(self, jsonik, media_list):
@@ -36,7 +33,6 @@ class ApiManager:
             response = urllib2.urlopen(url).read()
             json_response = json.loads(response)
             if json_response["data"]:
-                # tutaj zmienilem na j bo bylo i tak jak w poprzednim for.
                 for j in json_response["data"]:
                     if j["id"] not in users_lists:
                         users_lists.append(j["id"])
